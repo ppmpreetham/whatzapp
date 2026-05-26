@@ -1,0 +1,322 @@
+{
+  "$schema": "https://github.com/longbridge/gpui-component/raw/refs/heads/main/.theme-schema.json",
+  "name": "WHATZAPP",
+  "author": "WHATZAPP",
+  "themes": [
+    {
+      "name": "WhatsApp Light",
+      "mode": "light",
+      "shadow": false,
+      "colors": {
+        "accent.background": "#25D366",
+        "accent.foreground": "#FFFFFF",
+        "background": "#EFEAE2",
+        "foreground": "#111B21",
+        "border": "#D1D7DB",
+        "ring": "#25D366",
+        "danger.foreground": "#FFFFFF",
+
+        "list.active.background": "#D9FDD3",
+        "list.active.border": "#25D366",
+        "list.even.background": "#FFFFFF",
+        "list.hover.background": "#F5F6F6",
+
+        "muted.background": "#F0F2F5",
+        "muted.foreground": "#667781",
+
+        "popover.background": "#FFFFFF",
+        "popover.foreground": "#111B21",
+
+        "primary.background": "#25D366",
+        "primary.foreground": "#FFFFFF",
+
+        "scrollbar.background": "#FFFFFF00",
+        "scrollbar.thumb.background": "#C1C7CB",
+
+        "secondary.active.background": "#E9EDEF",
+        "secondary.background": "#F0F2F5",
+        "secondary.foreground": "#111B21",
+        "secondary.hover.background": "#E9EDEF",
+
+        "tab.active.foreground": "#111B21",
+        "tab.background": "#F0F2F5",
+        "tab.foreground": "#667781",
+        "tab_bar.background": "#FFFFFF",
+
+        "title_bar.background": "#F0F2F5",
+        "title_bar.border": "#D1D7DB",
+
+        "selection.background": "#D9FDD3",
+
+        "base.yellow": "#F4C430",
+        "base.red": "#E6485F",
+        "base.blue": "#53BDEB",
+        "base.green": "#25D366",
+        "base.magenta": "#D66EFD",
+        "base.cyan": "#00A884"
+      },
+
+      "highlight": {
+        "editor.foreground": "#111B21",
+        "editor.background": "#FFFFFF",
+        "editor.active_line.background": "#F5F6F6",
+        "editor.line_number": "#8696A0",
+        "editor.active_line_number": "#111B21",
+        "editor.invisible": "#25D36655",
+
+        "conflict": "#E6485F",
+        "created": "#25D366",
+        "hidden": "#667781",
+        "hint": "#00A884",
+        "modified": "#53BDEB",
+        "predictive": "#AEBAC1",
+        "warning": "#F4C430",
+
+        "syntax": {
+          "attribute": {
+            "color": "#00A884"
+          },
+          "boolean": {
+            "color": "#E6485F"
+          },
+          "comment": {
+            "color": "#8696A0"
+          },
+          "comment.doc": {
+            "color": "#8696A0"
+          },
+          "constant": {
+            "color": "#E6485F"
+          },
+          "constructor": {
+            "color": "#128C7E"
+          },
+          "embedded": {
+            "color": "#111B21"
+          },
+          "function": {
+            "color": "#075E54"
+          },
+          "keyword": {
+            "color": "#128C7E"
+          },
+          "link_text": {
+            "color": "#075E54",
+            "font_style": "normal"
+          },
+          "link_uri": {
+            "color": "#667781",
+            "font_style": "italic"
+          },
+          "number": {
+            "color": "#128C7E"
+          },
+          "string": {
+            "color": "#1F7A4D"
+          },
+          "string.escape": {
+            "color": "#1F7A4D"
+          },
+          "string.regex": {
+            "color": "#1F7A4D"
+          },
+          "string.special": {
+            "color": "#E6485F"
+          },
+          "string.special.symbol": {
+            "color": "#E6485F"
+          },
+          "tag": {
+            "color": "#128C7E"
+          },
+          "text.literal": {
+            "color": "#7F66FF"
+          },
+          "title": {
+            "color": "#075E54"
+          },
+          "type": {
+            "color": "#128C7E"
+          },
+          "property": {
+            "color": "#111B21"
+          },
+          "variable": {
+            "color": "#111B21"
+          },
+          "variable.special": {
+            "color": "#E6485F"
+          }
+        }
+      }
+    },
+
+    {
+      "name": "WhatsApp Dark",
+      "mode": "dark",
+      "shadow": false,
+      "colors": {
+        "accent.background": "#25D366",
+        "accent.foreground": "#111B21",
+
+        "background": "#0B141A",
+        "foreground": "#E9EDEF",
+        "border": "#202C33",
+        "ring": "#25D366",
+
+        "list.even.background": "#111B21",
+        "list.active.background": "#202C33",
+        "list.active.border": "#25D366",
+
+        "muted.background": "#202C33",
+        "muted.foreground": "#8696A0",
+
+        "popover.background": "#202C33",
+        "popover.foreground": "#E9EDEF",
+
+        "primary.background": "#25D366",
+        "primary.foreground": "#111B21",
+
+        "switch.background": "#2A3942",
+        "switch.thumb.background": "#D9FDD3",
+
+        "scrollbar.background": "#00000000",
+        "scrollbar.thumb.background": "#667781",
+
+        "secondary.active.background": "#2A3942",
+        "secondary.background": "#202C33",
+        "secondary.foreground": "#E9EDEF",
+        "secondary.hover.background": "#2A394299",
+
+        "link": "#53BDEB",
+
+        "tab_bar.background": "#111B21",
+        "tab.active.background": "#0B141A",
+        "tab.foreground": "#8696A0",
+
+        "title_bar.background": "#111B21",
+
+        "selection.background": "#103529",
+
+        "base.blue": "#53BDEB",
+        "base.cyan": "#00A884",
+        "base.green": "#25D366",
+        "base.magenta": "#D66EFD",
+        "base.red": "#FF6B81",
+        "base.yellow": "#FFD279"
+      },
+
+      "highlight": {
+        "editor.foreground": "#E9EDEF",
+        "editor.background": "#0B141A",
+        "editor.active_line.background": "#111B21",
+        "editor.line_number": "#667781",
+        "editor.active_line_number": "#FFFFFF",
+        "editor.invisible": "#25D36666",
+
+        "conflict": "#FF6B81",
+
+        "created": "#25D366",
+        "created.background": "#103529",
+
+        "deleted.background": "#3A1B22",
+        "error.background": "#3A1B22",
+        "error.border": "#FF6B81",
+
+        "hidden": "#8696A0",
+
+        "hint": "#00A884",
+        "hint.background": "#103529",
+        "hint.border": "#00A884",
+
+        "info.background": "#0A4F5C",
+        "info.border": "#53BDEB",
+
+        "modified": "#53BDEB",
+        "modified.background": "#0A3B4A",
+
+        "predictive": "#667781",
+
+        "success.background": "#103529",
+
+        "warning.background": "#4A3A10",
+        "warning.border": "#FFD279",
+
+        "syntax": {
+          "attribute": {
+            "color": "#7AE582"
+          },
+          "boolean": {
+            "color": "#FF8FA3"
+          },
+          "comment": {
+            "color": "#8696A0"
+          },
+          "comment.doc": {
+            "color": "#8696A0"
+          },
+          "constant": {
+            "color": "#FF8FA3"
+          },
+          "constructor": {
+            "color": "#8BE9FD"
+          },
+          "embedded": {
+            "color": "#E9EDEF"
+          },
+          "function": {
+            "color": "#25D366"
+          },
+          "keyword": {
+            "color": "#00A884"
+          },
+          "link_text": {
+            "color": "#53BDEB",
+            "font_style": "normal"
+          },
+          "link_uri": {
+            "color": "#7FA6B8",
+            "font_style": "italic"
+          },
+          "number": {
+            "color": "#FFD279"
+          },
+          "string": {
+            "color": "#7AE582"
+          },
+          "string.escape": {
+            "color": "#7AE582"
+          },
+          "string.regex": {
+            "color": "#7AE582"
+          },
+          "string.special": {
+            "color": "#FF8FA3"
+          },
+          "string.special.symbol": {
+            "color": "#FF8FA3"
+          },
+          "tag": {
+            "color": "#8BE9FD"
+          },
+          "text.literal": {
+            "color": "#D66EFD"
+          },
+          "title": {
+            "color": "#25D366",
+            "font_weight": 600
+          },
+          "type": {
+            "color": "#53BDEB"
+          },
+          "property": {
+            "color": "#E9EDEF"
+          },
+          "variable.special": {
+            "color": "#FF8FA3"
+          }
+        }
+      }
+    }
+  ]
+}
