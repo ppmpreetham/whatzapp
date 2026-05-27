@@ -2,8 +2,25 @@ use gpui::prelude::*;
 use gpui::*;
 use gpui_component::avatar::Avatar;
 use gpui_component::list::{ListDelegate, ListItem, ListState};
+use gpui_component::menu::ContextMenuExt;
 use gpui_component::{Icon, IconName, IndexPath};
 use gpui_rsx::rsx;
+
+// TODO: add functionality to these
+actions!(
+    whatsapp_chats,
+    [
+        ArchiveChat,
+        LockChat,
+        MuteNotifications,
+        UnpinChat,
+        MarkAsUnread,
+        AddToFavourites,
+        AddToList,
+        ClearChat,
+        ExitGroup
+    ]
+);
 
 #[derive(Clone)]
 pub struct ChatUser {
@@ -79,7 +96,6 @@ impl ListDelegate for ChatsDelegate {
                 .selected(Some(ix) == self.selected_index)
                 .child(rsx! {
                     <div class="rounded-lg p-3 flex flex-row gap-3 items-center w-full">
-
                         <div class="rounded-full bg-zinc-200">
                             {Avatar::new()
                                 .name(user.title.to_string())
@@ -91,19 +107,16 @@ impl ListDelegate for ChatsDelegate {
                         </div>
 
                         <div class="flex-1 min-w-0">
-
                             <div class="flex flex-row justify-between items-center">
                                 <div class="font-semibold truncate">
                                     {user.title.clone()}
                                 </div>
-
                                 <div class="text-xs text-zinc-500 whitespace-nowrap">
                                     {user.time.clone()}
                                 </div>
                             </div>
 
                             <div class="flex flex-row justify-between items-center gap-2">
-
                                 <div class="text-sm text-zinc-500 truncate">
                                     {user.content.clone()}
                                 </div>
@@ -130,12 +143,20 @@ impl ListDelegate for ChatsDelegate {
                                 }}
                                 </div>
                             </div>
-
-
                         </div>
                     </div>
-                })
-                .on_click(cx.listener(move |this, _, window, cx| {
+                }.context_menu(|menu, _window, _cx| {
+                    menu.menu_with_icon("Archive chat", IconName::Inbox, Box::new(ArchiveChat))
+                        .menu_with_icon("Lock chat", IconName::Check, Box::new(LockChat)) // No Lock icon; using CircleCheck/Check alternative
+                        .menu_with_icon("Mute notifications", IconName::Bell, Box::new(MuteNotifications)) // Standard Bell
+                        .menu_with_icon("Unpin chat", IconName::Minus, Box::new(UnpinChat)) // Generic removal indicator
+                        .menu_with_icon("Mark as unread", IconName::CircleCheck, Box::new(MarkAsUnread))
+                        .menu_with_icon("Add to favourites", IconName::Star, Box::new(AddToFavourites))
+                        .menu_with_icon("Add to list", IconName::Plus, Box::new(AddToList))
+                        .separator()
+                        .menu_with_icon("Clear chat", IconName::Delete, Box::new(ClearChat))
+                        .menu_with_icon("Exit group", IconName::ArrowLeft, Box::new(ExitGroup))
+                })).on_click(cx.listener(move |this, _, window, cx| {
                     this.delegate_mut()
                         .set_selected_index(Some(ix), window, cx);
                 }))

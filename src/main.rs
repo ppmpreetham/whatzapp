@@ -5,6 +5,7 @@ use gpui_component::list::{List, ListState};
 use gpui_component::menu::ContextMenuExt;
 use gpui_component::resizable::{h_resizable, resizable_panel};
 use gpui_component::{button::Button, *};
+use gpui_component_assets::Assets;
 use gpui_rsx::rsx;
 mod chats;
 mod theme;
@@ -40,17 +41,7 @@ impl Render for Whatzapp {
                                                     )
                                                     .tooltip("New Chat")
                                                 }
-                                                {div()
-                                                    .id("my-element")
-                                                    .child("Right click me")
-                                                    .context_menu(|menu, window, cx| {
-                                                        menu.menu_with_icon("New Group", IconName::Plus, Box::new(NewGrp))
-                                                            .menu_with_icon("Star Messages", IconName::Star, Box::new(StarMsgs))
-                                                            .menu_with_icon("Mark all as read", IconName::Star, Box::new(MrkAllRead))
-                                                            .separator()
-                                                            .menu_with_icon("Log out", IconName::Star, Box::new(LogOut))
-                                                            .menu_with_icon("App Lock", IconName::Star, Box::new(AppLock))
-                                                    })}
+
                                             </div>
                                             // TODO: use parallized nucleo/B+tree FTS5 for actual searching here
                                             {Input::new(&self.peoplesearch)
@@ -90,7 +81,7 @@ impl Render for Whatzapp {
 }
 
 fn main() {
-    Application::new().run(|cx: &mut App| {
+    Application::new().with_assets(Assets).run(|cx: &mut App| {
         gpui_component::init(cx);
         theme::init(cx);
 
@@ -99,6 +90,7 @@ fn main() {
                 let peoplesearch =
                     cx.new(|cx| InputState::new(window, cx).placeholder("Search..."));
                 let chats = cx.new(|cx| ListState::new(ChatsDelegate::new(), window, cx));
+                // .searchable(true);
                 Whatzapp {
                     peoplesearch,
                     chats,
