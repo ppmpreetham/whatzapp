@@ -1,3 +1,4 @@
+use gpui::prelude::*;
 use gpui::*;
 use gpui_component::avatar::Avatar;
 use gpui_component::list::{ListDelegate, ListItem, ListState};
@@ -12,6 +13,7 @@ pub struct ChatUser {
     pub time: SharedString,
     pub is_pinned: bool,
     pub unread_msgs: usize,
+    // TODO: is_typing state
 }
 
 pub fn get_dummy_chats() -> Vec<ChatUser> {
@@ -35,7 +37,7 @@ pub fn get_dummy_chats() -> Vec<ChatUser> {
         ChatUser {
             icon_path: "avatar3.png".into(),
             title: "Rust Community".into(),
-            content: "New update released!".into(),
+            content: "New update releaseddddddddddddddddddddddddddddddddddd!".into(),
             time: "Yesterday".into(),
             is_pinned: true,
             unread_msgs: 12,
@@ -106,30 +108,31 @@ impl ListDelegate for ChatsDelegate {
                                     {user.content.clone()}
                                 </div>
 
+                                <div class="flex flex-row gap-2">
                                 {if user.unread_msgs > 0 {
                                     rsx! {
                                         <div class="flex items-center justify-center size-20 bg-green-500 rounded-full text-xs text-white">
                                             {format!("{}", user.unread_msgs)}
                                         </div>
-                                    }
+                                    }.into_any_element()
                                 } else {
-                                    rsx! { <div /> }
+                                    div().size_0().into_any_element()
                                 }}
-
+                                // change this to the actual icon
+                                {if user.is_pinned {
+                                    rsx! {
+                                        <div class="text-xs text-yellow-500 mt-1">
+                                            {"Pinned"}
+                                        </div>
+                                    }.into_any_element()
+                                } else {
+                                    div().size_0().into_any_element()
+                                }}
+                                </div>
                             </div>
 
-                            {if user.is_pinned {
-                                rsx! {
-                                    <div class="text-xs text-yellow-500 mt-1">
-                                        {"Pinned"}
-                                    </div>
-                                }
-                            } else {
-                                rsx! { <div /> }
-                            }}
 
                         </div>
-
                     </div>
                 })
                 .on_click(cx.listener(move |this, _, window, cx| {

@@ -1,10 +1,11 @@
 use gpui::*;
+use gpui::{Action, actions};
 use gpui_component::input::{Input, InputState};
 use gpui_component::list::{List, ListState};
+use gpui_component::menu::ContextMenuExt;
 use gpui_component::resizable::{h_resizable, resizable_panel};
 use gpui_component::{button::Button, *};
 use gpui_rsx::rsx;
-
 mod chats;
 mod theme;
 
@@ -14,6 +15,7 @@ struct Whatzapp {
     peoplesearch: Entity<InputState>,
     chats: Entity<ListState<ChatsDelegate>>,
 }
+actions!(custom_menu, [NewGrp, StarMsgs, MrkAllRead, LogOut, AppLock]);
 
 impl Render for Whatzapp {
     fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
@@ -38,7 +40,19 @@ impl Render for Whatzapp {
                                                     )
                                                     .tooltip("New Chat")
                                                 }
+                                                {div()
+                                                    .id("my-element")
+                                                    .child("Right click me")
+                                                    .context_menu(|menu, window, cx| {
+                                                        menu.menu_with_icon("New Group", IconName::Plus, Box::new(NewGrp))
+                                                            .menu_with_icon("Star Messages", IconName::Star, Box::new(StarMsgs))
+                                                            .menu_with_icon("Mark all as read", IconName::Star, Box::new(MrkAllRead))
+                                                            .separator()
+                                                            .menu_with_icon("Log out", IconName::Star, Box::new(LogOut))
+                                                            .menu_with_icon("App Lock", IconName::Star, Box::new(AppLock))
+                                                    })}
                                             </div>
+                                            // TODO: use parallized nucleo/B+tree FTS5 for actual searching here
                                             {Input::new(&self.peoplesearch)
                                                 .prefix(
                                                     Icon::new(IconName::Search)
