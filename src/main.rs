@@ -1,6 +1,5 @@
 use gpui::*;
 use gpui::{Action, actions};
-use gpui_component::input::{Input, InputState};
 use gpui_component::list::{List, ListState};
 use gpui_component::menu::ContextMenuExt;
 use gpui_component::resizable::{h_resizable, resizable_panel};
@@ -13,7 +12,6 @@ mod theme;
 use chats::ChatsDelegate;
 
 struct Whatzapp {
-    peoplesearch: Entity<InputState>,
     chats: Entity<ListState<ChatsDelegate>>,
 }
 actions!(custom_menu, [NewGrp, StarMsgs, MrkAllRead, LogOut, AppLock]);
@@ -43,19 +41,6 @@ impl Render for Whatzapp {
                                                 }
 
                                             </div>
-                                            // TODO: use parallized nucleo/B+tree FTS5 for actual searching here
-                                            {Input::new(&self.peoplesearch)
-                                                .prefix(
-                                                    Icon::new(IconName::Search)
-                                                        .small()
-                                                )
-                                                .appearance(false)
-                                                .w_full()
-                                                .rounded_full()
-                                                .bg(rgb(0x2e2f2f))
-                                                .border_1()
-                                                .border_color(rgb(0x2e2f2f))
-                                            }
                                             <div class="flex-1 overflow-hidden">
                                                 {List::new(&self.chats)}
                                             </div>
@@ -87,14 +72,10 @@ fn main() {
 
         cx.open_window(WindowOptions::default(), |window, cx| {
             let view = cx.new(|cx| {
-                let peoplesearch =
-                    cx.new(|cx| InputState::new(window, cx).placeholder("Search..."));
-                let chats = cx.new(|cx| ListState::new(ChatsDelegate::new(), window, cx));
-                // .searchable(true);
-                Whatzapp {
-                    peoplesearch,
-                    chats,
-                }
+                // TODO: use B+tree FTS5 for actual searching here
+                let chats =
+                    cx.new(|cx| ListState::new(ChatsDelegate::new(), window, cx).searchable(true));
+                Whatzapp { chats }
             });
             cx.new(|cx| Root::new(view, window, cx))
         })

@@ -5,6 +5,7 @@ use gpui_component::list::{ListDelegate, ListItem, ListState};
 use gpui_component::menu::ContextMenuExt;
 use gpui_component::{Icon, IconName, IndexPath};
 use gpui_rsx::rsx;
+use nucleo::{Config, Nucleo, Utf32Str};
 
 // TODO: add functionality to these
 actions!(
@@ -63,14 +64,18 @@ pub fn get_dummy_chats() -> Vec<ChatUser> {
 }
 
 pub struct ChatsDelegate {
-    pub chats: Vec<ChatUser>,
+    pub all_chats: Vec<ChatUser>,
+    pub filtered_chats: Vec<ChatUser>,
     pub selected_index: Option<IndexPath>,
 }
 
 impl ChatsDelegate {
     pub fn new() -> Self {
+        let chats = get_dummy_chats();
+
         Self {
-            chats: get_dummy_chats(),
+            all_chats: chats.clone(),
+            filtered_chats: chats,
             selected_index: Some(IndexPath::new(0).section(0)),
         }
     }
@@ -80,7 +85,45 @@ impl ListDelegate for ChatsDelegate {
     type Item = ListItem;
 
     fn items_count(&self, _section: usize, _cx: &App) -> usize {
-        self.chats.len()
+        self.filtered_chats.len()
+    }
+
+    fn perform_search(
+        &mut self,
+        query: &str,
+        _window: &mut Window,
+        _cx: &mut Context<ListState<Self>>,
+    ) -> Task<()> {
+        use nucleo::{
+            Config, Matcher, Utf32Str,
+            pattern::{CaseMatching, Normalization, Pattern},
+        };
+
+        if query.is_empty() {
+            self.filtered_chats = self.all_chats.clone();
+            return Task::ready(());
+        }
+
+        let mut matcher = Matcher::new(Config::DEFAULT);
+        let pattern = Pattern::parse(query, CaseMatching::Smart, Normalization::Smart);
+        let mut scored: Vec<(u32, ChatUser)> = self
+            .all_chats
+            .iter()
+            .filter_map(|chat| {
+                let searchable = format!("{} {}", chat.title, chat.content);
+
+                let mut buf = Vec::new();
+                let utf32 = Utf32Str::new(&searchable, &mut buf);
+
+                pattern
+                    .score(utf32, &mut matcher)
+                    .map(|score| (score, chat.clone()))
+            })
+            .collect();
+
+        scored.sort_by(|a, b| b.0.cmp(&a.0));
+        self.filtered_chats = scored.into_iter().map(|(_, chat)| chat).collect();
+        Task::ready(())
     }
 
     fn render_item(
@@ -89,7 +132,7 @@ impl ListDelegate for ChatsDelegate {
         _window: &mut Window,
         cx: &mut Context<ListState<Self>>,
     ) -> Option<Self::Item> {
-        let user = self.chats.get(ix.row)?;
+        let user = self.filtered_chats.get(ix.row)?;
 
         Some(
             ListItem::new(ix)
