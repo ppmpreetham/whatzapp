@@ -14,9 +14,14 @@ use chat::ChatView;
 
 use chats::ChatsDelegate;
 
+pub struct AppState {
+    pub selected_chat: usize,
+}
+
 struct Whatzapp {
     chats: Entity<ListState<ChatsDelegate>>,
     chat_view: Entity<ChatView>,
+    state: Entity<AppState>,
 }
 actions!(custom_menu, [NewGrp, StarMsgs, MrkAllRead, LogOut, AppLock]);
 
@@ -71,10 +76,17 @@ fn main() {
         cx.open_window(WindowOptions::default(), |window, cx| {
             let view = cx.new(|cx| {
                 // TODO: use B+tree FTS5 for actual searching here
-                let chats =
-                    cx.new(|cx| ListState::new(ChatsDelegate::new(), window, cx).searchable(true));
-                let chat_view = cx.new(|cx| ChatView::new(window, cx));
-                Whatzapp { chats, chat_view }
+                let state = cx.new(|_| AppState { selected_chat: 0 });
+                let chat_view = cx.new(|cx| ChatView::new(state.clone(), window, cx));
+
+                let chats = cx.new(|cx| {
+                    ListState::new(ChatsDelegate::new(state.clone()), window, cx).searchable(true)
+                });
+                Whatzapp {
+                    chats,
+                    chat_view,
+                    state,
+                }
             });
             cx.new(|cx| Root::new(view, window, cx))
         })

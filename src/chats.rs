@@ -1,3 +1,5 @@
+use crate::AppState;
+use crate::chat::ChatView;
 use gpui::prelude::*;
 use gpui::*;
 use gpui_component::avatar::Avatar;
@@ -64,16 +66,19 @@ pub fn get_dummy_chats() -> Vec<ChatUser> {
 }
 
 pub struct ChatsDelegate {
+    state: Entity<AppState>,
     pub all_chats: Vec<ChatUser>,
     pub filtered_chats: Vec<ChatUser>,
     pub selected_index: Option<IndexPath>,
 }
 
 impl ChatsDelegate {
-    pub fn new() -> Self {
+    pub fn new(state: Entity<AppState>) -> Self {
         let chats = get_dummy_chats();
 
         Self {
+            state,
+
             all_chats: chats.clone(),
             filtered_chats: chats,
             selected_index: Some(IndexPath::new(0).section(0)),
@@ -202,6 +207,12 @@ impl ListDelegate for ChatsDelegate {
                 })).on_click(cx.listener(move |this, _, window, cx| {
                     this.delegate_mut()
                         .set_selected_index(Some(ix), window, cx);
+                    let state =
+                        this.delegate().state.clone();
+
+                    state.update(cx, |state, _| {
+                        state.selected_chat = ix.row;
+                    });
                 }))
         )
     }
