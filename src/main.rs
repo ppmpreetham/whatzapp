@@ -6,13 +6,17 @@ use gpui_component::resizable::{h_resizable, resizable_panel};
 use gpui_component::{button::Button, *};
 use gpui_component_assets::Assets;
 use gpui_rsx::rsx;
+mod chat;
 mod chats;
 mod theme;
+
+use chat::ChatView;
 
 use chats::ChatsDelegate;
 
 struct Whatzapp {
     chats: Entity<ListState<ChatsDelegate>>,
+    chat_view: Entity<ChatView>,
 }
 actions!(custom_menu, [NewGrp, StarMsgs, MrkAllRead, LogOut, AppLock]);
 
@@ -50,13 +54,7 @@ impl Render for Whatzapp {
                         )
                         .child(
                             resizable_panel()
-                                .child(
-                                    rsx! {
-                                        <div class="flex items-center justify-center size-full">
-                                            {"chat..."}
-                                        </div>
-                                    }
-                                )
+                                .child(self.chat_view.clone())
                         )
                     }
                 </div>
@@ -75,7 +73,8 @@ fn main() {
                 // TODO: use B+tree FTS5 for actual searching here
                 let chats =
                     cx.new(|cx| ListState::new(ChatsDelegate::new(), window, cx).searchable(true));
-                Whatzapp { chats }
+                let chat_view = cx.new(|cx| ChatView::new(window, cx));
+                Whatzapp { chats, chat_view }
             });
             cx.new(|cx| Root::new(view, window, cx))
         })
