@@ -38,6 +38,12 @@ pub fn App(lists: Vec<MessageList>) {
     rsx! {
       <body class="m-0 size-full flex flex-row" onKeyDown={move |e| cycle(e)} style={utils::style(&[("background-color", "background"), ("color", "foreground")])}>
         <div class="w-96 shrink-0 flex flex-col overflow-hidden border-r" style={utils::style(&[("border-color", "border")])}>
+          <div class="flex items-center justify-between px-4 py-3">
+            <span class="text-lg font-semibold">"Chats"</span>
+            <div class={format!("size-8 rounded-full flex items-center justify-center cursor-pointer hover:bg-[{}]", theme::color("secondary.active.background"))}>
+              <img src="public/icons/search.svg" width="16" height="16" />
+            </div>
+          </div>
           {for (i, c) in chats.into_iter().enumerate() {
             <div class={if selected.get() == i { format!("bg-[{}]", theme::color("list.active.background")) } else { String::new() }} onClick={move || selected.set(i)}>
               <chat {...c} />

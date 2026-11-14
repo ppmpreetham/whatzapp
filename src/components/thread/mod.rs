@@ -1,5 +1,6 @@
 use blenderui::prelude::*;
 use strum::IntoStaticStr;
+pub mod file;
 
 use crate::{theme, utils::cx};
 
@@ -68,7 +69,7 @@ pub fn Thread(messages: Vec<Msg>, status: Delivery, typing: bool) {
                             colors(m.mine),
                             tail(m.mine, sides.get(i + 1) != Some(&m.mine)),
                             if m.fresh { POP } else { "" },
-                            "px-3 py-2 text-sm leading-5",
+                            "px-3 py-2 text-sm leading-5 min-w-0 break-words",
                         ])}>{m.text.clone()}</div>
                         {if Some(m.id) == last_sent {
                             rsx! {

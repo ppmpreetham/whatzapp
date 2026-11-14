@@ -1,7 +1,6 @@
 use blenderui::prelude::*;
 
 pub mod header;
-pub mod singlemessage;
 pub mod messages;
 
 use crate::components::input::MessageInput;
