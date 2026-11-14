@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use time::Time;
 use blenderui::prelude::*;
-use crate::{theme, utils};
+use crate::utils;
 
 #[derive(Props)]
 pub struct ChatProps {
@@ -21,7 +21,7 @@ pub fn chat(ChatProps { icon_path, title, content, time, pinned, unread }: ChatP
     let initial = utils::initial(&title);
 
     rsx! {
-        <div class={format!("flex items-center p-3 cursor-pointer border-b hover:bg-[{}]", theme::color("list.hover.background"))} style={utils::style(&[("border-color", "border")])}>
+        <div class="flex items-center p-3 cursor-pointer">
             <div class="size-12 mr-4 shrink-0 rounded-full overflow-hidden flex items-center justify-center" style={utils::style(&[("background-color", "secondary.background")])}>
                 <span class="text-lg font-medium">{initial}</span>
             </div>

@@ -4,7 +4,6 @@ use time::Time;
 use crate::components::chat::ChatProps;
 use crate::{theme, utils};
 use crate::components::conversation::Conversation;
-use crate::components::personchat::{messages::MessageList, PersonChat};
 
 fn sample_chats() -> Vec<ChatProps> {
     let chat = |title: &'static str, content: &'static str, (h, m): (u8, u8), pinned, unread| ChatProps {
@@ -23,7 +22,7 @@ fn sample_chats() -> Vec<ChatProps> {
 }
 
 #[component]
-pub fn App(lists: Vec<MessageList>) {
+pub fn App() {
     let chats = sample_chats();
     let selected = use_signal(0usize);
     let current = chats[selected.get()].title.clone();
@@ -45,17 +44,13 @@ pub fn App(lists: Vec<MessageList>) {
             </div>
           </div>
           {for (i, c) in chats.into_iter().enumerate() {
-            <div class={if selected.get() == i { format!("bg-[{}]", theme::color("list.active.background")) } else { String::new() }} onClick={move || selected.set(i)}>
+            <div class={format!("mx-2 my-0.5 rounded-lg {}", if selected.get() == i { format!("bg-[{}]", theme::color("list.active.background")) } else { format!("hover:bg-[{}]", theme::color("list.hover.background")) })} onClick={move || selected.set(i)}>
               <chat {...c} />
             </div>
           }}
         </div>
         <div class="flex-1 min-w-0">
-          {if std::env::var_os("WZ_PERSONCHAT").is_none() {
-            rsx! { <Conversation name={current} chat={selected.get()} /> }
-          } else {
-            rsx! { <PersonChat name={current} list={lists[selected.get()].clone()} /> }
-          }}
+          <Conversation name={current} chat={selected.get()} />
         </div>
       </body>
     }
