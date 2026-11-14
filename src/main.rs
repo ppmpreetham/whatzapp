@@ -9,7 +9,7 @@ struct Demo;
 impl Render for Demo {
     fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
         rsx! {
-            <App />
+            <html class="size-full"><App /></html>
         }
     }
 }
