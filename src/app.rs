@@ -2,7 +2,7 @@ use blenderui::prelude::*;
 use std::path::PathBuf;
 use time::Time;
 use crate::components::chat::ChatProps;
-use crate::utils;
+use crate::{theme, utils};
 use crate::components::conversation::Conversation;
 use crate::components::personchat::{messages::MessageList, PersonChat};
 
@@ -27,19 +27,26 @@ pub fn App(lists: Vec<MessageList>) {
     let chats = sample_chats();
     let selected = use_signal(0usize);
     let current = chats[selected.get()].title.clone();
+    let count = chats.len();
+    let cycle = move |e: &KeyDownEvent| {
+        let m = e.keystroke.modifiers;
+        if m.control && e.keystroke.key.to_ascii_lowercase().ends_with("tab") {
+            selected.set((selected.get() + if m.shift { count - 1 } else { 1 }) % count);
+        }
+    };
 
     rsx! {
-      <body class="m-0 size-full flex flex-row" style={utils::style(&[("background-color", "background"), ("color", "foreground")])}>
+      <body class="m-0 size-full flex flex-row" onKeyDown={move |e| cycle(e)} style={utils::style(&[("background-color", "background"), ("color", "foreground")])}>
         <div class="w-96 shrink-0 flex flex-col overflow-hidden border-r" style={utils::style(&[("border-color", "border")])}>
           {for (i, c) in chats.into_iter().enumerate() {
-            <div onClick={move || selected.set(i)}>
+            <div class={if selected.get() == i { format!("bg-[{}]", theme::color("list.active.background")) } else { String::new() }} onClick={move || selected.set(i)}>
               <chat {...c} />
             </div>
           }}
         </div>
         <div class="flex-1 min-w-0">
           {if std::env::var_os("WZ_PERSONCHAT").is_none() {
-            rsx! { <Conversation name={current} /> }
+            rsx! { <Conversation name={current} chat={selected.get()} /> }
           } else {
             rsx! { <PersonChat name={current} list={lists[selected.get()].clone()} /> }
           }}
