@@ -2,8 +2,9 @@ use blenderui::prelude::*;
 use std::path::PathBuf;
 use time::Time;
 use crate::components::chat::ChatProps;
-use crate::theme;
-use crate::components::personchat::PersonChat;
+use crate::utils;
+use crate::components::conversation::Conversation;
+use crate::components::personchat::{messages::MessageList, PersonChat};
 
 fn sample_chats() -> Vec<ChatProps> {
     let chat = |title: &'static str, content: &'static str, (h, m): (u8, u8), pinned, unread| ChatProps {
@@ -22,14 +23,14 @@ fn sample_chats() -> Vec<ChatProps> {
 }
 
 #[component]
-pub fn App() {
+pub fn App(lists: Vec<MessageList>) {
     let chats = sample_chats();
     let selected = use_signal(0usize);
     let current = chats[selected.get()].title.clone();
 
     rsx! {
-      <body class="m-0 size-full flex flex-row" style={format!("background-color:{};color:{}", theme::color("background"), theme::color("foreground"))}>
-        <div class="w-96 shrink-0 flex flex-col overflow-hidden border-r" style={format!("border-color:{}", theme::color("border"))}>
+      <body class="m-0 size-full flex flex-row" style={utils::style(&[("background-color", "background"), ("color", "foreground")])}>
+        <div class="w-96 shrink-0 flex flex-col overflow-hidden border-r" style={utils::style(&[("border-color", "border")])}>
           {for (i, c) in chats.into_iter().enumerate() {
             <div onClick={move || selected.set(i)}>
               <chat {...c} />
@@ -37,7 +38,11 @@ pub fn App() {
           }}
         </div>
         <div class="flex-1 min-w-0">
-          <PersonChat name={current} />
+          {if std::env::var_os("WZ_PERSONCHAT").is_none() {
+            rsx! { <Conversation name={current} /> }
+          } else {
+            rsx! { <PersonChat name={current} list={lists[selected.get()].clone()} /> }
+          }}
         </div>
       </body>
     }

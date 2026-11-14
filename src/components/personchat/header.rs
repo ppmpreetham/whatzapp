@@ -2,12 +2,12 @@ use std::path::PathBuf;
 use crate::components::avatar::Avatar;
 
 use blenderui::prelude::*;
-use crate::theme;
+use crate::utils;
 
 #[component]
 pub fn PersonChatHeader(chatName: SharedString, chatAvatar: Option<PathBuf>) {
     rsx! {
-      <div className="flex items-center p-3 border-b" style={format!("background-color:{};border-color:{};color:{}", theme::color("secondary.background"), theme::color("border"), theme::color("foreground"))}>
+      <div className="flex items-center p-3 border-b" style={utils::style(&[("background-color", "secondary.background"), ("border-color", "border"), ("color", "foreground")])}>
         // {onBack && (
         //   <button onClick={onBack} className="mr-4 md:hidden">
         //     <GoBackIcon />

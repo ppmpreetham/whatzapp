@@ -19,3 +19,24 @@ pub fn color(name: &str) -> String {
         None => "#ff00ff".into(),
     }
 }
+
+pub fn vars() -> String {
+    [
+        ("bg", "background"),
+        ("fg", "foreground"),
+        ("muted", "muted.foreground"),
+        ("border", "border"),
+        ("surface", "secondary.background"),
+        ("chip", "secondary.active.background"),
+        ("popover", "secondary.background"),
+        ("in", "bubble.in.background"),
+        ("out", "bubble.out.background"),
+        ("outfg", "bubble.out.foreground"),
+        ("accent", "primary.background"),
+        ("onaccent", "primary.foreground"),
+    ]
+    .iter()
+    .map(|(var, name)| format!("--wz-{var}:{}", color(name)))
+    .collect::<Vec<_>>()
+    .join(";")
+}
