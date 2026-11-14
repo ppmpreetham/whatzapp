@@ -2,6 +2,7 @@ use blenderui::prelude::*;
 use std::path::PathBuf;
 use time::Time;
 use crate::components::chat::ChatProps;
+use crate::theme;
 use crate::components::personchat::PersonChat;
 
 fn sample_chats() -> Vec<ChatProps> {
@@ -27,8 +28,8 @@ pub fn App() {
     let current = chats[selected.get()].title.clone();
 
     rsx! {
-      <body class="m-0 size-full flex flex-row bg-zinc-900 text-white">
-        <div class="w-96 shrink-0 flex flex-col overflow-hidden border-r border-white/10">
+      <body class="m-0 size-full flex flex-row" style={format!("background-color:{};color:{}", theme::color("background"), theme::color("foreground"))}>
+        <div class="w-96 shrink-0 flex flex-col overflow-hidden border-r" style={format!("border-color:{}", theme::color("border"))}>
           {for (i, c) in chats.into_iter().enumerate() {
             <div onClick={move || selected.set(i)}>
               <chat {...c} />

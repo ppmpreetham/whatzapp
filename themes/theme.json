@@ -1,5 +1,4 @@
 {
-  "$schema": "https://github.com/longbridge/gpui-component/raw/refs/heads/main/.theme-schema.json",
   "name": "WHATZAPP",
   "author": "WHATZAPP",
   "themes": [
@@ -165,6 +164,7 @@
         "ring": "#25D366",
 
         "list.even.background": "#111B21",
+        "list.hover.background": "#202C33",
         "list.active.background": "#202C33",
         "list.active.border": "#25D366",
 

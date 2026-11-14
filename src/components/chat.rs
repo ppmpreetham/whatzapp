@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 use time::Time;
 use blenderui::prelude::*;
+use crate::theme;
 
 #[derive(Props)]
 pub struct ChatProps {
@@ -24,20 +25,20 @@ pub fn chat(ChatProps { icon_path, title, content, time, pinned, unread }: ChatP
         .unwrap_or('?'));
 
     rsx! {
-        <div class="flex items-center p-3 cursor-pointer border-b border-white/10 hover:bg-zinc-800">
-            <div class="size-12 mr-4 shrink-0 rounded-full bg-zinc-600 overflow-hidden flex items-center justify-center">
-                <span class="text-lg font-medium text-white">{initial}</span>
+        <div class={format!("flex items-center p-3 cursor-pointer border-b hover:bg-[{}]", theme::color("list.hover.background"))} style={format!("border-color:{}", theme::color("border"))}>
+            <div class="size-12 mr-4 shrink-0 rounded-full overflow-hidden flex items-center justify-center" style={format!("background-color:{}", theme::color("secondary.background"))}>
+                <span class="text-lg font-medium">{initial}</span>
             </div>
             <div class="flex-1 min-w-0">
                 <div class="flex justify-between items-center mb-1">
-                    <div class="flex-1 min-w-0 font-medium text-white truncate">{title}</div>
-                    <span class="text-xs text-zinc-400">{stamp}</span>
+                    <div class="flex-1 min-w-0 font-medium truncate">{title}</div>
+                    <span class="text-xs" style={format!("color:{}", theme::color("muted.foreground"))}>{stamp}</span>
                 </div>
                 <div class="flex justify-between items-center gap-2">
-                    <div class="flex-1 min-w-0 h-5 text-sm text-zinc-400 truncate">{content}</div>
+                    <div class="flex-1 min-w-0 h-5 text-sm truncate" style={format!("color:{}", theme::color("muted.foreground"))}>{content}</div>
                     <div class="flex items-center gap-2 shrink-0">
-                        {pinned.then(|| rsx! { <div class="text-xs text-zinc-400">"pinned"</div> })}
-                        {unread.then(|| rsx! { <div class="w-2 h-2 rounded-full bg-emerald-500" /> })}
+                        {pinned.then(|| rsx! { <div class="text-xs" style={format!("color:{}", theme::color("muted.foreground"))}>"pinned"</div> })}
+                        {unread.then(|| rsx! { <div class="w-2 h-2 rounded-full" style={format!("background-color:{}", theme::color("primary.background"))} /> })}
                     </div>
                 </div>
             </div>
