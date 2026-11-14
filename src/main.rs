@@ -2,23 +2,23 @@ use blenderui::prelude::*;
 
 mod app;
 use app::App;
+
 pub mod components;
 pub mod utils;
-mod theme;
+pub mod pages;
 
-use components::personchat::messages::{sample_lists, MessageList};
+mod theme;
+mod backend;
 
 /// WhatsApp Light and WhatsApp Dark (bui theme file, see bui/docs/theming.md).
 const THEME: &str = include_str!("../themes/theme.json");
 
-struct Demo {
-    lists: Vec<MessageList>,
-}
+struct Demo;
 
 impl Render for Demo {
     fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
         rsx! {
-            <html class="size-full"><App lists={self.lists.clone()} /></html>
+            <html class="size-full"><App /></html>
         }
     }
 }
@@ -28,10 +28,7 @@ fn main() {
     blenderui::set_theme("WhatsApp Dark");
 
     Application::new().gpu(true).run(|cx| {
-        cx.open_window(WindowOptions::default(), |_, cx| {
-            let lists = sample_lists(cx);
-            cx.new(|_| Demo { lists })
-        })
+        cx.open_window(WindowOptions::default(), |_, cx| cx.new(|_| Demo))
         .unwrap();
     });
 }
