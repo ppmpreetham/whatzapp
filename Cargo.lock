@@ -3108,6 +3108,7 @@ dependencies = [
 name = "whatzapp"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "blenderui",
  "nucleo",
  "qrcode",
