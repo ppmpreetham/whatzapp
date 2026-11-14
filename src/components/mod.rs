@@ -4,3 +4,4 @@ pub mod personchat;
 pub mod input;
 pub mod thread;
 pub mod conversation;
+pub mod qr;

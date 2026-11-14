@@ -6,6 +6,13 @@ edition = "2024"
 [dependencies]
 blenderui = { path = "../bui/bindings/rust/blenderui" }
 nucleo = "0.5.0"
+
+# types
 serde = { version = "1", features = ["derive"] }
-strum = { version = "0.28.0", features = ["derive"] }
 time = "0.3.55"
+strum = { version = "0.28.0", features = ["derive"] }
+
+# backend
+tokio = { version = "1.54.1", features = ["macros", "rt-multi-thread", "signal"] }
+whatsapp-rust = { git = "https://github.com/oxidezap/whatsapp-rust", rev = "e634d245f71d66e2ae55f79ef714c4ca01615ed8", default-features = false, features = ["sqlite-storage", "tokio-transport", "tokio-runtime", "ureq-client", "tokio-native", "voip"] }
+qrcode = { version = "0.14.1", default-features = false }
