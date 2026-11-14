@@ -1,7 +1,7 @@
 use blenderui::prelude::*;
 
 pub mod header;
-
+pub mod singlemessage;
 use crate::components::input::MessageInput;
 use header::PersonChatHeader;
 
