@@ -1,19 +1,42 @@
 use blenderui::prelude::*;
 use std::path::PathBuf;
 use time::Time;
-use crate::components::chat::chat;
+use crate::components::chat::ChatProps;
 use crate::components::personchat::PersonChat;
+
+fn sample_chats() -> Vec<ChatProps> {
+    let chat = |title: &'static str, content: &'static str, (h, m): (u8, u8), pinned, unread| ChatProps {
+        icon_path: PathBuf::new(),
+        title: title.into(),
+        content: content.into(),
+        time: Time::from_hms(h, m, 0).unwrap(),
+        pinned,
+        unread,
+    };
+    vec![
+        chat("Alice", "See you tomorrow!", (9, 41), true, true),
+        chat("Bob", "A very very very very very very very very very very very very very very very very long message", (18, 5), false, false),
+        chat("Carol", "Thanks, that works for me", (14, 22), false, true),
+    ]
+}
 
 #[component]
 pub fn App() {
+    let chats = sample_chats();
+    let selected = use_signal(0usize);
+    let current = chats[selected.get()].title.clone();
+
     rsx! {
       <body class="m-0 size-full flex flex-row bg-zinc-900 text-white">
         <div class="w-96 shrink-0 flex flex-col overflow-hidden border-r border-white/10">
-            <chat icon_path={PathBuf::new()} title="Alice" content="See you tomorrow!" time={Time::from_hms(9, 41, 0).unwrap()} pinned={true} unread={true} />
-            <chat icon_path={PathBuf::new()} title="Bob" content="A very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long message" time={Time::from_hms(18, 5, 0).unwrap()} pinned={false} unread={false} />
+          {for (i, c) in chats.into_iter().enumerate() {
+            <div onClick={move || selected.set(i)}>
+              <chat {...c} />
+            </div>
+          }}
         </div>
-        <div class="flex-1 min-w-0 flex flex-col">
-          <PersonChat />
+        <div class="flex-1 min-w-0">
+          <PersonChat name={current} />
         </div>
       </body>
     }

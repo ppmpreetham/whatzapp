@@ -5,10 +5,10 @@ pub mod header;
 use header::PersonChatHeader;
 
 #[component]
-pub fn PersonChat() {
+pub fn PersonChat(name: SharedString) {
     rsx! {
       <div class="flex flex-col">
-        <PersonChatHeader chatName="John Doe" />
+        <PersonChatHeader chatName={name} />
       </div>
     }
 }

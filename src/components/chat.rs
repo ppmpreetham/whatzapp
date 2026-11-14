@@ -2,8 +2,18 @@ use std::path::PathBuf;
 use time::Time;
 use blenderui::prelude::*;
 
+#[derive(Props)]
+pub struct ChatProps {
+    pub icon_path: PathBuf,
+    pub title: SharedString,
+    pub content: SharedString,
+    pub time: Time,
+    pub pinned: bool,
+    pub unread: bool,
+}
+
 #[component]
-pub fn chat(icon_path: PathBuf, title: SharedString, content: SharedString, time: Time, pinned: bool, unread: bool) {
+pub fn chat(ChatProps { icon_path, title, content, time, pinned, unread }: ChatProps) {
     // TODO: once storage is done, we take the pfps from it.
     _ = icon_path;
     let stamp = format!("{:02}:{:02}", time.hour(), time.minute());
