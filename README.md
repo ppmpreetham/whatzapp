@@ -1,2 +1,4 @@
-# whatsapp
-📞 Finally a Whatsapp for Linux
+# whatzapp
+
+![](readme/image.png)
+A Superfast WhatsApp you deserve
