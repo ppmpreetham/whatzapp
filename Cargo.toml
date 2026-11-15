@@ -14,6 +14,6 @@ strum = { version = "0.28.0", features = ["derive"] }
 
 # backend
 tokio = { version = "1.54.1", features = ["macros", "rt-multi-thread", "signal"] }
-whatsapp-rust = { git = "https://github.com/oxidezap/whatsapp-rust", rev = "e634d245f71d66e2ae55f79ef714c4ca01615ed8", default-features = false, features = ["sqlite-storage", "tokio-transport", "tokio-runtime", "ureq-client", "tokio-native", "voip"] }
+whatsapp-rust = { git = "https://github.com/oxidezap/whatsapp-rust", rev = "e634d245f71d66e2ae55f79ef714c4ca01615ed8", default-features = false, features = ["sqlite-storage-bundled", "tokio-transport", "tokio-runtime", "ureq-client", "tokio-native", "voip"] }
 qrcode = { version = "0.14.1", default-features = false }
 anyhow = "1.0.104"

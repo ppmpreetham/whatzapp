@@ -13,12 +13,14 @@ mod backend;
 /// WhatsApp Light and WhatsApp Dark (bui theme file, see bui/docs/theming.md).
 const THEME: &str = include_str!("../themes/theme.json");
 
-struct Demo;
+struct Demo {
+    ui: blenderui::UiSender,
+}
 
 impl Render for Demo {
     fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
         rsx! {
-            <html class="size-full"><App /></html>
+            <html class="size-full"><App ui={self.ui.clone()} /></html>
         }
     }
 }
@@ -28,7 +30,8 @@ fn main() {
     blenderui::set_theme("WhatsApp Dark");
 
     Application::new().gpu(true).run(|cx| {
-        cx.open_window(WindowOptions::default(), |_, cx| cx.new(|_| Demo))
+        let ui = cx.ui_sender();
+        cx.open_window(WindowOptions::default(), |_, cx| cx.new(|_| Demo { ui }))
         .unwrap();
     });
 }

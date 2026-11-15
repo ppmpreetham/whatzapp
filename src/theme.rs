@@ -40,3 +40,7 @@ pub fn vars() -> String {
     .collect::<Vec<_>>()
     .join(";")
 }
+
+pub fn rgb(name: &str) -> [f32; 3] {
+    blenderui::theme_color(key(name)).map_or([1.0, 0.0, 1.0], |[r, g, b, _]| [r, g, b])
+}

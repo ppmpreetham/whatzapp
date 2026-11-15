@@ -5,3 +5,4 @@ pub mod input;
 pub mod thread;
 pub mod conversation;
 pub mod qr;
+pub mod burn;

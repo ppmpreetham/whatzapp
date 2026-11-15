@@ -78,7 +78,7 @@ pub fn Conversation(name: SharedString, chat: usize) {
                               onKeyDown={move |e| shift.set(e.keystroke.modifiers.shift)}
                               onInput={move |e| {
                                   let v = e.value.clone();
-                                  // a trailing newline is Enter: send it, unless Shift was held
+                                  // send on enter unless shift was held
                                   if v.ends_with('\n') && !shift.get() {
                                       draft.set(v.trim_end().to_string());
                                       send();
