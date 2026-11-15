@@ -67,12 +67,12 @@ pub fn App(ui: UiSender) {
     };
 
     let burn = |code: Option<String>| match code {
-        Some(code) => rsx! { <div class="absolute inset-0 pointer-events-none"><Burn data={SharedString::from(code)} /></div> },
+        Some(code) => rsx! { <div class="absolute inset-0 z-20 pointer-events-none"><Burn data={SharedString::from(code)} /></div> },
         None => rsx! { <div /> },
     };
 
     let offline_banner = |offline: bool| if offline {
-        rsx! { <div class="absolute top-0 inset-x-0 z-10 py-1 text-center text-xs" style={utils::style(&[("background-color", "secondary.background"), ("color", "muted.foreground")])}>"Reconnecting..."</div> }
+        rsx! { <div class="absolute top-0 inset-x-0 z-30py-1 text-center text-xs" style={utils::style(&[("background-color", "secondary.background"), ("color", "muted.foreground")])}>"Reconnecting..."</div> }
     } else {
         rsx! { <div /> }
     };
