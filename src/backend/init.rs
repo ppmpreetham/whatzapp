@@ -1,27 +1,43 @@
 // for first qr, bro needs to login thru his phone
 
-use tokio::sync::{watch, watch::Receiver};
-use whatsapp_rust::prelude::*;
-use anyhow::Result;
+use std::time::Duration;
+use tokio::runtime::Runtime;
+use tokio::sync::mpsc::UnboundedReceiver;
 
-pub async fn start() -> Result<Receiver<Option<String>>> {
-    let (tx, rx) = watch::channel(None);
-    let store = SqliteStore::open("whatsapp.db").await?;
+use super::bot::{self, Exit};
+use super::event::{self, emit, Event};
+use super::store;
 
-    let bot = Bot::builder()
-        .with_backend(store)
-        .on_qr_code(move |code, _| {
-            let tx = tx.clone();
-            async move {
-                tx.send_replace(Some(code));
+const MAX_WAIT: u64 = 30;
+
+pub fn start() -> Option<UnboundedReceiver<Event>> {
+    let events = event::channel()?;
+    std::thread::spawn(supervise);
+    Some(events)
+}
+
+fn supervise() {
+    let Ok(r) = Runtime::new() else {
+        return emit(Event::Failed("no async runtime".into()));
+    };
+    let mut wait = 1;
+    loop {
+        match r.block_on(bot::run()) {
+            Exit::LoggedOut => {
+                store::forget();
+                emit(Event::LoggedOut);
+                wait = 1;
             }
-        })
-        .build()
-        .await?;
-
-    tokio::spawn(async move {
-        bot.run().await;
-    });
-
-    Ok(rx)
+            Exit::Dropped => {
+                emit(Event::Offline);
+                std::thread::sleep(Duration::from_secs(wait));
+                wait = (wait * 2).min(MAX_WAIT);
+            }
+            Exit::Failed(reason) => {
+                emit(Event::Failed(reason));
+                std::thread::sleep(Duration::from_secs(wait));
+                wait = (wait * 2).min(MAX_WAIT);
+            }
+        }
+    }
 }
