@@ -8,7 +8,7 @@ pub struct ChatProps {
     pub icon_path: PathBuf,
     pub title: SharedString,
     pub content: SharedString,
-    pub time: Time,
+    pub time: Option<Time>,
     pub pinned: bool,
     pub unread: bool,
 }
@@ -17,7 +17,7 @@ pub struct ChatProps {
 pub fn chat(ChatProps { icon_path, title, content, time, pinned, unread }: ChatProps) {
     // TODO: once storage is done, we take the pfps from it.
     _ = icon_path;
-    let stamp = format!("{:02}:{:02}", time.hour(), time.minute());
+    let stamp = time.map(|t| format!("{:02}:{:02}", t.hour(), t.minute())).unwrap_or_default();
     let initial = utils::initial(&title);
 
     rsx! {

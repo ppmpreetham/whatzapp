@@ -98,3 +98,14 @@ pub fn Thread(messages: Vec<Msg>, status: Delivery, typing: bool) {
         </div>
     }
 }
+
+pub type Chats = Vec<(String, Vec<Msg>)>;
+
+pub fn push(chats: &mut Chats, jid: String, mine: bool, text: String) {
+    let at = chats.iter().position(|(j, _)| *j == jid).unwrap_or_else(|| {
+        chats.push((jid, Vec::new()));
+        chats.len() - 1
+    });
+    let msgs = &mut chats[at].1;
+    msgs.push(Msg { id: msgs.len() as u32 + 1, text: text.into(), mine, fresh: true });
+}

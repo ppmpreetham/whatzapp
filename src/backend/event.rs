@@ -7,6 +7,7 @@ pub enum Event {
     LoggedOut,
     Offline,
     Failed(String),
+    Message { chat: String, mine: bool, text: String },
 }
 
 static SINK: OnceLock<UnboundedSender<Event>> = OnceLock::new();

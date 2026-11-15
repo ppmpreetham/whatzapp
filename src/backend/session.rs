@@ -18,6 +18,7 @@ impl Session {
             (Session::Online { .. }, Event::Offline) => Session::Online { offline: true },
             (session, Event::Offline) => session,
             (_, Event::Failed(reason)) => Session::Failed(reason),
+            (session, Event::Message { .. }) => session,
         }
     }
 }

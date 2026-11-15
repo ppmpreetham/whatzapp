@@ -24,6 +24,15 @@ pub async fn run() -> Exit {
         .on_qr_code(|code, _| async move { emit(Event::Qr(code)) })
         .on_connected(|_| async { emit(Event::Connected) })
         .on_logged_out(|_| async { LOGGED_OUT.store(true, Ordering::SeqCst) })
+        .on_message(|ctx| async move {
+            if let Some(text) = ctx.message.text_content() {
+                emit(Event::Message {
+                    chat: ctx.info.source.chat.to_string(),
+                    mine: ctx.info.source.is_from_me,
+                    text: text.to_string(),
+                });
+            }
+        })
         .build()
         .await;
     let bot = match bot {

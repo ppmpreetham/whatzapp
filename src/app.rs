@@ -1,9 +1,9 @@
 use blenderui::prelude::*;
 use std::path::PathBuf;
-use time::Time;
 use crate::components::chat::ChatProps;
 use crate::{theme, utils};
 use crate::components::conversation::Conversation;
+use crate::components::thread::{push, Chats};
 use crate::components::burn::Burn;
 use crate::backend::event::Event;
 use crate::backend::init;
@@ -11,32 +11,24 @@ use crate::pages::stepper::Stepper;
 use crate::backend::session::Session;
 use blenderui::UiSender;
 
-fn sample_chats() -> Vec<ChatProps> {
-    let chat = |title: &'static str, content: &'static str, (h, m): (u8, u8), pinned, unread| ChatProps {
-        icon_path: PathBuf::new(),
-        title: title.into(),
-        content: content.into(),
-        time: Time::from_hms(h, m, 0).unwrap(),
-        pinned,
-        unread,
-    };
-    vec![
-        chat("Alice", "See you tomorrow!", (9, 41), true, true),
-        chat("Bob", "A very very very very very very very very very very very very very very very very long message", (18, 5), false, false),
-        chat("Carol", "Thanks, that works for me", (14, 22), false, true),
-    ]
+fn title(jid: &str) -> String {
+    jid.split('@').next().unwrap_or(jid).to_string()
 }
 
 #[component]
 pub fn App(ui: UiSender) {
     let session = use_signal(Session::default());
     let burn_code = use_signal(None::<String>);
+    let inbox = use_signal(Chats::new());
 
     use_effect!(move || {
         if let Some(mut events) = init::start() {
             std::thread::spawn(move || {
                 while let Some(event) = events.blocking_recv() {
                     ui.send(move |_| {
+                        if let Event::Message { chat, mine, text } = event {
+                            return inbox.update(|c| push(c, chat, mine, text));
+                        }
                         match (session.get(), &event) {
                             (Session::Pairing(code), Event::Connected) => burn_code.set(Some(code)),
                             (_, Event::LoggedOut) => burn_code.set(None),
@@ -49,13 +41,13 @@ pub fn App(ui: UiSender) {
         }
     }, []);
 
-    let chats = sample_chats();
+    let chats = inbox.get();
     let selected = use_signal(0usize);
-    let current = chats[selected.get()].title.clone();
+    let current = chats.get(selected.get()).map_or_else(String::new, |c| title(&c.0));
     let count = chats.len();
     let cycle = move |e: &KeyDownEvent| {
         let m = e.keystroke.modifiers;
-        if m.control && e.keystroke.key.to_ascii_lowercase().ends_with("tab") {
+        if count > 0 && m.control && e.keystroke.key.to_ascii_lowercase().ends_with("tab") {
             selected.set((selected.get() + if m.shift { count - 1 } else { 1 }) % count);
         }
     };
@@ -88,12 +80,12 @@ pub fn App(ui: UiSender) {
           </div>
           {for (i, c) in chats.into_iter().enumerate() {
             <div class={format!("mx-2 my-0.5 rounded-lg {}", if selected.get() == i { format!("bg-[{}]", theme::color("list.active.background")) } else { format!("hover:bg-[{}]", theme::color("list.hover.background")) })} onClick={move || selected.set(i)}>
-              <chat {...c} />
+              <chat {...ChatProps { icon_path: PathBuf::new(), title: title(&c.0).into(), content: c.1.last().map_or_else(SharedString::default, |m| m.text.clone()), time: None, pinned: false, unread: false }} />
             </div>
           }}
         </div>
         <div class="flex-1 min-w-0">
-          <Conversation name={current} chat={selected.get()} />
+          <Conversation name={current} chat={selected.get()} inbox={inbox} />
         </div>
         {offline_banner(offline)}
         {burn(burn_code)}
