@@ -3,7 +3,9 @@ use whatsapp_rust::prelude::*;
 use whatsapp_rust::types::events::ConnectFailureReason;
 use whatsapp_rust::{ProtocolTerminalReason, RunCompletionReason};
 
-use super::event::{emit, Event};
+use tokio::sync::mpsc::UnboundedReceiver;
+
+use super::event::{emit, Outgoing, Event};
 use super::store;
 
 pub enum Exit {
@@ -14,7 +16,7 @@ pub enum Exit {
 
 static LOGGED_OUT: AtomicBool = AtomicBool::new(false);
 
-pub async fn run() -> Exit {
+pub async fn run(outbox: &mut UnboundedReceiver<Outgoing>) -> Exit {
     let store = match store::open().await {
         Ok(store) => store,
         Err(e) => return Exit::Failed(e),
@@ -39,12 +41,26 @@ pub async fn run() -> Exit {
         Ok(bot) => bot,
         Err(e) => return Exit::Failed(e.to_string()),
     };
-    let reason = bot.run().await;
+    let client = bot.client();
+    let run = bot.run();
+    tokio::pin!(run);
+    let reason = loop {
+        tokio::select! {
+            reason = &mut run => break reason,
+            Some(out) = outbox.recv() => deliver(&client, out).await,
+        }
+    };
     if LOGGED_OUT.swap(false, Ordering::SeqCst) || removed(&reason) {
         Exit::LoggedOut
     } else {
         Exit::Dropped
     }
+}
+
+async fn deliver(client: &Client, out: Outgoing) {
+    let Ok(to) = out.chat.parse::<Jid>() else { return };
+    let message = wa::Message::text(out.text);
+    client.send_message(to, message).await.ok();
 }
 
 fn removed(reason: &RunCompletionReason) -> bool {

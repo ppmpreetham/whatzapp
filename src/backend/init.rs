@@ -5,24 +5,24 @@ use tokio::runtime::Runtime;
 use tokio::sync::mpsc::UnboundedReceiver;
 
 use super::bot::{self, Exit};
-use super::event::{self, emit, Event};
+use super::event::{self, emit, Outgoing, Event};
 use super::store;
 
 const MAX_WAIT: u64 = 30;
 
 pub fn start() -> Option<UnboundedReceiver<Event>> {
-    let events = event::channel()?;
-    std::thread::spawn(supervise);
+    let (events, outbox) = event::channel()?;
+    std::thread::spawn(move || supervise(outbox));
     Some(events)
 }
 
-fn supervise() {
+fn supervise(mut outbox: UnboundedReceiver<Outgoing>) {
     let Ok(r) = Runtime::new() else {
         return emit(Event::Failed("no async runtime".into()));
     };
     let mut wait = 1;
     loop {
-        match r.block_on(bot::run()) {
+        match r.block_on(bot::run(&mut outbox)) {
             Exit::LoggedOut => {
                 store::forget();
                 emit(Event::LoggedOut);

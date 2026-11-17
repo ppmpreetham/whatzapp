@@ -1,6 +1,7 @@
 use blenderui::prelude::*;
 
-use crate::components::thread::{push, Chats, Delivery, Thread};
+use crate::backend::event;
+use crate::components::thread::{append, Chats, Delivery, Thread};
 use crate::{theme, utils::{cx, initial}};
 
 const ROUND: &str = "shrink-0 rounded-full flex items-center justify-center transition-[transform,background-color] duration-150 active:scale-95";
@@ -20,7 +21,10 @@ pub fn Conversation(name: SharedString, chat: usize, inbox: Signal<Chats>) {
         if text.is_empty() || chat >= inbox.get().len() {
             return;
         }
-        inbox.update(|c| push(c, c[chat].0.clone(), true, text));
+        inbox.update(|c| {
+            event::send(&c[chat].0, &text);
+            append(c, chat, true, text);
+        });
         draft.set(String::new());
         status.set(Delivery::Delivered);
     };

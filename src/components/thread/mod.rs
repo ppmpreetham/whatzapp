@@ -106,6 +106,10 @@ pub fn push(chats: &mut Chats, jid: String, mine: bool, text: String) {
         chats.push((jid, Vec::new()));
         chats.len() - 1
     });
+    append(chats, at, mine, text);
+}
+
+pub fn append(chats: &mut Chats, at: usize, mine: bool, text: String) {
     let msgs = &mut chats[at].1;
     msgs.push(Msg { id: msgs.len() as u32 + 1, text: text.into(), mine, fresh: true });
 }

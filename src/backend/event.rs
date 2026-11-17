@@ -10,12 +10,26 @@ pub enum Event {
     Message { chat: String, mine: bool, text: String },
 }
 
-static SINK: OnceLock<UnboundedSender<Event>> = OnceLock::new();
+pub struct Outgoing {
+    pub chat: String,
+    pub text: String,
+}
 
-pub fn channel() -> Option<UnboundedReceiver<Event>> {
+static SINK: OnceLock<UnboundedSender<Event>> = OnceLock::new();
+static OUT: OnceLock<UnboundedSender<Outgoing>> = OnceLock::new();
+
+pub fn channel() -> Option<(UnboundedReceiver<Event>, UnboundedReceiver<Outgoing>)> {
     let (sink, events) = unbounded_channel();
+    let (out, outbox) = unbounded_channel();
     SINK.set(sink).ok()?;
-    Some(events)
+    OUT.set(out).ok()?;
+    Some((events, outbox))
+}
+
+pub fn send(chat: &str, text: &str) {
+    if let Some(out) = OUT.get() {
+        out.send(Outgoing { chat: chat.into(), text: text.into() }).ok();
+    }
 }
 
 pub fn emit(event: Event) {
