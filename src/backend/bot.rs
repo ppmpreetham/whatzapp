@@ -1,6 +1,6 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 use whatsapp_rust::prelude::*;
-use whatsapp_rust::types::events::ConnectFailureReason;
+use whatsapp_rust::types::events::{ConnectFailureReason, Event as Wa};
 use whatsapp_rust::{ProtocolTerminalReason, RunCompletionReason};
 
 use tokio::sync::mpsc::UnboundedReceiver;
@@ -26,15 +26,8 @@ pub async fn run(outbox: &mut UnboundedReceiver<Outgoing>) -> Exit {
         .on_qr_code(|code, _| async move { emit(Event::Qr(code)) })
         .on_connected(|_| async { emit(Event::Connected) })
         .on_logged_out(|_| async { LOGGED_OUT.store(true, Ordering::SeqCst) })
-        .on_message(|ctx| async move {
-            if let Some(text) = ctx.message.text_content() {
-                emit(Event::Message {
-                    chat: ctx.info.source.chat.to_string(),
-                    mine: ctx.info.source.is_from_me,
-                    text: text.to_string(),
-                });
-            }
-        })
+        .on_event_for(&[EventKind::HistorySync], |event, _| async move { history(&event) })
+        .on_message(|ctx| async move { live(&ctx) })
         .build()
         .await;
     let bot = match bot {
@@ -54,6 +47,28 @@ pub async fn run(outbox: &mut UnboundedReceiver<Outgoing>) -> Exit {
         Exit::LoggedOut
     } else {
         Exit::Dropped
+    }
+}
+
+fn live(ctx: &MessageContext) {
+    if let Some(text) = ctx.message.text_content() {
+        let chat = ctx.info.source.chat.to_string();
+        emit(Event::Message { chat, mine: ctx.info.source.is_from_me, text: text.to_string() });
+    }
+}
+
+fn history(event: &Wa) {
+    let Wa::HistorySync(sync) = event else { return };
+    for chat in sync.get().into_iter().flat_map(|h| &h.conversations) {
+        chat.messages
+            .iter()
+            .filter_map(|m| m.message.as_option())
+            .filter_map(|info| {
+                let text = info.message.as_option()?.text_content()?;
+                let mine = info.key.as_option().and_then(|k| k.from_me).unwrap_or(false);
+                Some(Event::Message { chat: chat.id.clone(), mine, text: text.to_string() })
+            })
+            .for_each(emit);
     }
 }
 
