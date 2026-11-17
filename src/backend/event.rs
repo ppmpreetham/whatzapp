@@ -7,7 +7,7 @@ pub enum Event {
     LoggedOut,
     Offline,
     Failed(String),
-    Message { chat: String, mine: bool, text: String },
+    Message { chat: String, name: String, mine: bool, text: String },
 }
 
 pub struct Outgoing {

@@ -8,7 +8,7 @@ const ROUND: &str = "shrink-0 rounded-full flex items-center justify-center tran
 
 #[component]
 pub fn Conversation(name: SharedString, chat: usize, inbox: Signal<Chats>) {
-    let messages = inbox.with(|c| c.get(chat).map_or_else(Vec::new, |c| c.1.clone()));
+    let messages = inbox.with(|c| c.get(chat).map_or_else(Vec::new, |c| c.msgs.clone()));
 
     let draft = use_signal(String::new());
     let shift = use_signal(false);
@@ -22,7 +22,7 @@ pub fn Conversation(name: SharedString, chat: usize, inbox: Signal<Chats>) {
             return;
         }
         inbox.update(|c| {
-            event::send(&c[chat].0, &text);
+            event::send(&c[chat].jid, &text);
             append(c, chat, true, text);
         });
         draft.set(String::new());
@@ -36,7 +36,7 @@ pub fn Conversation(name: SharedString, chat: usize, inbox: Signal<Chats>) {
             <header class="relative z-[2] flex items-center gap-3 px-4 py-3 bg-[color:var(--wz-surface)]">
                 <span class="shrink-0 size-9 rounded-full flex items-center justify-center bg-[color:var(--wz-chip)] text-[15px] font-medium">{initial}</span>
                 <div class="flex-1 min-w-0 flex flex-col">
-                    <span class="text-[15px] leading-5 font-medium truncate">{name.clone()}</span>
+                    <span class="text-[15px] leading-5 font-medium truncate">{name}</span>
                     <span class="text-xs leading-4 text-[color:var(--wz-muted)]">"online"</span>
                 </div>
                 <div class="shrink-0 flex gap-1 -mr-1.5">

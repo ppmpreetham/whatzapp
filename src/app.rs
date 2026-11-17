@@ -11,10 +11,6 @@ use crate::pages::stepper::Stepper;
 use crate::backend::session::Session;
 use blenderui::UiSender;
 
-fn title(jid: &str) -> String {
-    jid.split('@').next().unwrap_or(jid).to_string()
-}
-
 #[component]
 pub fn App(ui: UiSender) {
     let session = use_signal(Session::default());
@@ -26,7 +22,7 @@ pub fn App(ui: UiSender) {
         std::thread::spawn(move || {
             while let Some(event) = events.blocking_recv() {
                 ui.send(move |_| match event {
-                    Event::Message { chat, mine, text } => inbox.update(|c| push(c, chat, mine, text)),
+                    Event::Message { chat, name, mine, text } => inbox.update(|c| push(c, chat, name, mine, text)),
                     event => {
                         if let (Session::Pairing(code), Event::Connected) = (session.get(), &event) {
                             burn_code.set(Some(code));
@@ -40,7 +36,7 @@ pub fn App(ui: UiSender) {
 
     let chats = inbox.get();
     let selected = use_signal(0usize);
-    let current = chats.get(selected.get()).map_or_else(String::new, |c| title(&c.0));
+    let current = chats.get(selected.get()).map_or_else(String::new, |c| c.name.clone());
     let count = chats.len();
     let cycle = move |e: &KeyDownEvent| {
         let m = e.keystroke.modifiers;
@@ -77,7 +73,7 @@ pub fn App(ui: UiSender) {
           </div>
           {for (i, c) in chats.into_iter().enumerate() {
             <div class={format!("mx-2 my-0.5 rounded-lg {}", if selected.get() == i { format!("bg-[{}]", theme::color("list.active.background")) } else { format!("hover:bg-[{}]", theme::color("list.hover.background")) })} onClick={move || selected.set(i)}>
-              <chat {...ChatProps { icon_path: PathBuf::new(), title: title(&c.0).into(), content: c.1.last().map_or_else(SharedString::default, |m| m.text.clone()), time: None, pinned: false, unread: false }} />
+              <chat {...ChatProps { icon_path: PathBuf::new(), title: c.name.into(), content: c.msgs.last().map_or_else(SharedString::default, |m| m.text.clone()), time: None, pinned: false, unread: false }} />
             </div>
           }}
         </div>

@@ -70,7 +70,7 @@ pub fn Thread(messages: Vec<Msg>, status: Delivery, typing: bool) {
                             tail(m.mine, sides.get(i + 1) != Some(&m.mine)),
                             if m.fresh { POP } else { "" },
                             "px-3 py-2 text-sm leading-5 min-w-0 break-words",
-                        ])}>{m.text.clone()}</div>
+                        ])}>{m.text}</div>
                         {if Some(m.id) == last_sent {
                             rsx! {
                                 <div class="pt-0.5 pr-1 text-xs leading-4 text-[color:var(--wz-muted)]">
@@ -99,17 +99,28 @@ pub fn Thread(messages: Vec<Msg>, status: Delivery, typing: bool) {
     }
 }
 
-pub type Chats = Vec<(String, Vec<Msg>)>;
+#[derive(Clone)]
+pub struct Chat {
+    pub jid: String,
+    pub name: String,
+    pub msgs: Vec<Msg>,
+}
 
-pub fn push(chats: &mut Chats, jid: String, mine: bool, text: String) {
-    let at = chats.iter().position(|(j, _)| *j == jid).unwrap_or_else(|| {
-        chats.push((jid, Vec::new()));
+pub type Chats = Vec<Chat>;
+
+pub fn push(chats: &mut Chats, jid: String, name: String, mine: bool, text: String) {
+    let at = chats.iter().position(|c| c.jid == jid).unwrap_or_else(|| {
+        let name = jid.split('@').next().unwrap_or_default().to_string();
+        chats.push(Chat { jid, name, msgs: Vec::new() });
         chats.len() - 1
     });
+    if !name.is_empty() {
+        chats[at].name = name;
+    }
     append(chats, at, mine, text);
 }
 
 pub fn append(chats: &mut Chats, at: usize, mine: bool, text: String) {
-    let msgs = &mut chats[at].1;
+    let msgs = &mut chats[at].msgs;
     msgs.push(Msg { id: msgs.len() as u32 + 1, text: text.into(), mine, fresh: true });
 }

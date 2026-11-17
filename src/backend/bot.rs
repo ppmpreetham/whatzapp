@@ -52,21 +52,23 @@ pub async fn run(outbox: &mut UnboundedReceiver<Outgoing>) -> Exit {
 
 fn live(ctx: &MessageContext) {
     if let Some(text) = ctx.message.text_content() {
-        let chat = ctx.info.source.chat.to_string();
-        emit(Event::Message { chat, mine: ctx.info.source.is_from_me, text: text.to_string() });
+        let source = &ctx.info.source;
+        let name = if source.is_from_me || source.is_group { "" } else { &ctx.info.push_name };
+        emit(Event::Message { chat: source.chat.to_string(), name: name.into(), mine: source.is_from_me, text: text.to_string() });
     }
 }
 
 fn history(event: &Wa) {
     let Wa::HistorySync(sync) = event else { return };
     for chat in sync.get().into_iter().flat_map(|h| &h.conversations) {
+        let name = chat.name.as_deref().or(chat.display_name.as_deref()).unwrap_or_default();
         chat.messages
             .iter()
             .filter_map(|m| m.message.as_option())
             .filter_map(|info| {
                 let text = info.message.as_option()?.text_content()?;
                 let mine = info.key.as_option().and_then(|k| k.from_me).unwrap_or(false);
-                Some(Event::Message { chat: chat.id.clone(), mine, text: text.to_string() })
+                Some(Event::Message { chat: chat.id.clone(), name: name.into(), mine, text: text.to_string() })
             })
             .for_each(emit);
     }
