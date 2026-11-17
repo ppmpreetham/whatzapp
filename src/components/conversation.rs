@@ -8,17 +8,17 @@ const ROUND: &str = "shrink-0 rounded-full flex items-center justify-center tran
 
 #[component]
 pub fn Conversation(name: SharedString, chat: usize, inbox: Signal<Chats>) {
-    let messages = inbox.get().get(chat).map_or_else(Vec::new, |c| c.1.clone());
+    let messages = inbox.with(|c| c.get(chat).map_or_else(Vec::new, |c| c.1.clone()));
 
     let draft = use_signal(String::new());
     let shift = use_signal(false);
     let status = use_signal(Delivery::Read);
 
-    let ready = !draft.get().trim().is_empty();
+    let ready = draft.with(|d| !d.trim().is_empty());
 
     let send = move || {
         let text = draft.get().trim().to_string();
-        if text.is_empty() || chat >= inbox.get().len() {
+        if text.is_empty() || chat >= inbox.with(|c| c.len()) {
             return;
         }
         inbox.update(|c| {
