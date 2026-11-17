@@ -3,10 +3,10 @@ use std::path::PathBuf;
 use crate::components::chat::ChatProps;
 use crate::{theme, utils};
 use crate::components::conversation::Conversation;
-use crate::components::thread::{push, Chats};
-use crate::components::burn::Burn;
 use crate::backend::event::Event;
 use crate::backend::init;
+use crate::components::thread::{push, Chats};
+use crate::components::burn::Burn;
 use crate::pages::stepper::Stepper;
 use crate::backend::session::Session;
 use blenderui::UiSender;
@@ -22,23 +22,20 @@ pub fn App(ui: UiSender) {
     let inbox = use_signal(Chats::new());
 
     use_effect!(move || {
-        if let Some(mut events) = init::start() {
-            std::thread::spawn(move || {
-                while let Some(event) = events.blocking_recv() {
-                    ui.send(move |_| {
-                        if let Event::Message { chat, mine, text } = event {
-                            return inbox.update(|c| push(c, chat, mine, text));
-                        }
-                        match (session.get(), &event) {
-                            (Session::Pairing(code), Event::Connected) => burn_code.set(Some(code)),
-                            (_, Event::LoggedOut) => burn_code.set(None),
-                            _ => {}
+        let Some(mut events) = init::start() else { return };
+        std::thread::spawn(move || {
+            while let Some(event) = events.blocking_recv() {
+                ui.send(move |_| match event {
+                    Event::Message { chat, mine, text } => inbox.update(|c| push(c, chat, mine, text)),
+                    event => {
+                        if let (Session::Pairing(code), Event::Connected) = (session.get(), &event) {
+                            burn_code.set(Some(code));
                         }
                         session.update(|s| *s = std::mem::take(s).next(event));
-                    });
-                }
-            });
-        }
+                    }
+                });
+            }
+        });
     }, []);
 
     let chats = inbox.get();
@@ -59,12 +56,12 @@ pub fn App(ui: UiSender) {
     };
 
     let burn = |code: Option<String>| match code {
-        Some(code) => rsx! { <div class="absolute inset-0 z-20 pointer-events-none"><Burn data={SharedString::from(code)} /></div> },
+        Some(code) => rsx! { <div class="absolute inset-0 z-20 pointer-events-none"><Burn data={SharedString::from(code)} done={burn_code} /></div> },
         None => rsx! { <div /> },
     };
 
     let offline_banner = |offline: bool| if offline {
-        rsx! { <div class="absolute top-0 inset-x-0 z-30py-1 text-center text-xs" style={utils::style(&[("background-color", "secondary.background"), ("color", "muted.foreground")])}>"Reconnecting..."</div> }
+        rsx! { <div class="absolute top-0 inset-x-0 z-30 py-1 text-center text-xs" style={utils::style(&[("background-color", "secondary.background"), ("color", "muted.foreground")])}>"Reconnecting..."</div> }
     } else {
         rsx! { <div /> }
     };

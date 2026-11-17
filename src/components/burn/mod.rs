@@ -1,4 +1,4 @@
-use std::cell::{Cell, RefCell};
+use std::cell::RefCell;
 use std::time::Instant;
 
 use blenderui::motion::use_motion_value;
@@ -196,30 +196,36 @@ impl Sim {
     }
 }
 
+struct Run {
+    sim: Option<Sim>,
+    start: Instant,
+    last: Instant,
+}
+
 #[component]
-pub fn Burn(data: SharedString) {
+pub fn Burn(data: SharedString, done: Signal<Option<String>>) {
     let tick = use_motion_value(0.0);
-    use_effect!(move || { tick.animate(1.0, vars! { duration: 14.0, ease: "none" }); }, []);
+    use_effect!(move || { tick.animate(1.0, vars! { duration: 14.0, ease: "none", on_complete: move || done.set(None) }); }, []);
 
     let background = theme::rgb("background");
-    let sim: RefCell<Option<Sim>> = RefCell::new(None);
-    let start = Instant::now();
-    let last = Cell::new(start);
+    let run = use_signal(RefCell::new(Run { sim: None, start: Instant::now(), last: Instant::now() }));
 
     rsx! {
         {canvas(move |bounds, painter: &mut Painter| {
             let _ = tick.get();
-            let mut sim = sim.borrow_mut();
-            if sim.is_none() {
-                *sim = Sim::new(bounds.size.width, bounds.size.height, background, qr_pixels(&data));
-            }
-            let Some(sim) = sim.as_mut() else { return };
-            let now = Instant::now();
-            let dt = now.duration_since(last.replace(now)).as_secs_f32();
-            let time = start.elapsed().as_secs_f32() % 1000.0;
-            sim.run(dt, time, |target, effect, inputs, floats| match target {
-                Some(t) => painter.effect_to(bounds, t, effect, inputs, floats),
-                None => painter.effect(bounds, effect, inputs, floats, None),
+            run.with(|run| {
+                let mut run = run.borrow_mut();
+                if run.sim.is_none() {
+                    run.sim = Sim::new(bounds.size.width, bounds.size.height, background, qr_pixels(&data));
+                }
+                let now = Instant::now();
+                let dt = now.duration_since(std::mem::replace(&mut run.last, now)).as_secs_f32();
+                let time = run.start.elapsed().as_secs_f32() % 1000.0;
+                let Some(sim) = run.sim.as_mut() else { return };
+                sim.run(dt, time, |target, effect, inputs, floats| match target {
+                    Some(t) => painter.effect_to(bounds, t, effect, inputs, floats),
+                    None => painter.effect(bounds, effect, inputs, floats, None),
+                });
             });
         })
         .size_full()}

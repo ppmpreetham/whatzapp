@@ -9,6 +9,7 @@ pub enum Session {
     Failed(String),
 }
 
+// state machine
 impl Session {
     pub fn next(self, event: Event) -> Session {
         match (self, event) {
